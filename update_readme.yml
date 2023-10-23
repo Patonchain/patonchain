@@ -1,0 +1,37 @@
+name: Update README with I Ching Divination
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 * * * *'  # Run every hour
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
+    - name: Install dependencies
+      run: |
+        pip install openai
+        pip install python-decouple
+
+    - name: Run I Ching script and update README
+      run: |
+        export OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+        OUTPUT=$(python i_ching.py)
+        echo "$OUTPUT" > README.md
+
+    - name: Commit and push changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add README.md
+        git commit -m "Update README with I Ching Divination"
+        git push
